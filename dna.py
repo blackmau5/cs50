@@ -1,35 +1,31 @@
 #Problem description can be found here: https://cs50.harvard.edu/x/2020/psets/6/dna/
-import sys, csv
+import csv
+import sys
 
-#Define the argument passing and usage
+# Define the argument passing and usage
 if len(sys.argv) != 3:
     print('Usage: python dna.py data.csv sequence.txt')
     sys.exit()
 
-#Open the csv file
-with open(sys.argv[1], newline='') as f:
-    csv_reader = list(csv.reader(f))
-    STR_list = []
-    db_list = []
-    for i in range(1, len(csv_reader[0])):
-        STR_list.append(csv_reader[0][i])
-    for i in csv_reader:
-        db_list.append(i)
+# Open the csv file and create 2 lists: one with all csv lines as lists and another one with STRs
+with open(sys.argv[1], newline='') as csv_file:
+    db_list = list(csv.reader(csv_file))
+    str_list = db_list[0][1:]
 
-#Open the txt file
-with open(sys.argv[2]) as f2:
-    str_txt = str(f2.read().strip())
+with open(sys.argv[2]) as txt_file:
+    str_txt = str(txt_file.read().strip())
 
-#Calculating maximum consecutive matches of STRs or returning False if no matches found
-def match(STR_list):
-    count = 1
-    max_count = 0
+
+# Calculate maximum consecutive matches of STRs or returning False if no matches found
+def match():
     match_list = []
-    for i in STR_list:
-        if str_txt.find(i) != -1:
-            j = str_txt.find(i)
-            while j < len(str_txt)-len(i)+1:
-                if str_txt[j-len(i):j] == str_txt[j:j+len(i)] == i:
+    for i in str_list:
+        if i in str_txt:
+            count = 1
+            max_count = 0
+            j = str_txt.find(i) + len(i)
+            while j < len(str_txt) - len(i) + 1:
+                if str_txt[j - len(i):j] == str_txt[j:j + len(i)] == i:
                     count += 1
                     j += len(i)
                 elif count > max_count:
@@ -37,27 +33,26 @@ def match(STR_list):
                     count = 1
                 else:
                     j += 1
+            # This if block catches the maximum occurrence if the longest sequence is located at the end of the str_txt
+            if count > max_count:
+                max_count = count
             match_list.append(str(max_count))
-            max_count = 0
-            count = 1
         else:
             return False
     return match_list
 
-match_list = match(STR_list)
 
-#Compare the list of found matches with the list from the opened csv
+# Compare the list of found matches with the lists from the csv file
 def compare_matches():
-    for i in range(1, len(db_list)):
-        db_lists = []
-        for j in range(1, len(db_list[1])):
-            db_lists.append(db_list[i][j])
-        if match_list == db_lists:
-            return db_list[i][0]
+    for repeats_list in db_list[1:]:
+        sequence_list = [repeats for repeats in repeats_list[1:]]
+        if match() == sequence_list:
+            return repeats_list[0]
     return 'No match'
 
-#Print the name of the matching person's STR or 'No match' if no match found
-if match_list is False:
-    print('No match')
-else:
+
+# Print the name of the matching person's STR or 'No match' if no match found
+if match():
     print(compare_matches())
+else:
+    print('No match')
