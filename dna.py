@@ -1,4 +1,4 @@
-#Problem description can be found here: https://cs50.harvard.edu/x/2020/psets/6/dna/
+# Problem description can be found here: https://cs50.harvard.edu/x/2020/psets/6/dna/
 import csv
 import sys
 
